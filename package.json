@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "rm dist/* && parcel build index.html",
+    "build": "rm dist/* && parcel build index.html && cp favicon* dist/",
     "deploy": "msg=\"$(echo `git log -1 --pretty=%B`)\" && npm run build && cd dist/.git/.. && git add . && git commit -m \"$msg\" && git push",
     "format": "tsc && tslint -p . --fix",
     "start": "parcel index.html"
