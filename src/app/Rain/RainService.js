@@ -1,16 +1,18 @@
-import { Config } from "../Config/Config";
-import { StateGeneral } from "../State/StateGeneral";
+import { RainConfig } from "../../domain/Rain/RainConfig";
+import { AtomService } from "../Atom/AtomService";
 
 export class RainService {
   /**
    * @typedef IProps
-   * @property {Config} config
-   * @property {StateGeneral} stateGeneral
+   * @property {AtomService} atomService
+   * @property {CanvasRenderingContext2D} context
    *
    * @param {IProps} props
    */
   constructor(props) {
     this.props = props;
+
+    this.config = new RainConfig();
   }
 
   /**
@@ -21,25 +23,27 @@ export class RainService {
     let rainX = 0;
     let rainY = 0;
 
-    const { config, stateGeneral } = this.props;
+    const { atomService, context } = this.props;
 
     for (
       let dropIndex = 0;
-      dropIndex < config.rainDropsPerUpdate;
+      dropIndex < this.config.dropsPerUpdate;
       dropIndex++
     ) {
-      stateGeneral.context.lineWidth =
-        config.minRainWidth +
-        Math.floor(Math.random() * (config.maxRainWidth - config.minRainWidth));
+      context.lineWidth =
+        this.config.minWidth +
+        Math.floor(
+          Math.random() * (this.config.maxWidth - this.config.minWidth)
+        );
 
-      rainX = Math.floor(Math.random() * stateGeneral.canvasWidth);
-      rainY = Math.floor(Math.random() * stateGeneral.canvasHeight);
+      rainX = Math.floor(Math.random() * context.canvas.width);
+      rainY = Math.floor(Math.random() * context.canvas.height);
 
-      stateGeneral.context.strokeStyle = config.background;
-      stateGeneral.context.beginPath();
-      stateGeneral.context.moveTo(rainX, rainY);
-      stateGeneral.context.lineTo(rainX + 1, rainY + 1);
-      stateGeneral.context.stroke();
+      context.strokeStyle = atomService.config.background;
+      context.beginPath();
+      context.moveTo(rainX, rainY);
+      context.lineTo(rainX + 1, rainY + 1);
+      context.stroke();
     }
   }
 }

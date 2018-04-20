@@ -1,18 +1,21 @@
-import { Config } from "../Config/Config";
-import { StateGeneral } from "../State/StateGeneral";
-import { StateTiming } from "../State/StateTiming";
+import { Flasher } from "../../domain/Flasher/Flasher";
+import { FlasherConfig } from "../../domain/Flasher/FlasherConfig";
+import { AtomService } from "../Atom/AtomService";
 
 export class FlasherService {
   /**
    * @typedef IProps
-   * @property {Config} config
-   * @property {StateGeneral} stateGeneral
-   * @property {StateTiming} stateTiming
+   * @property {AtomService} atomService
+   * @property {CanvasRenderingContext2D} context
    *
    * @param {IProps} props
    */
   constructor(props) {
     this.props = props;
+
+    this.config = new FlasherConfig();
+
+    this.flasher = new Flasher();
   }
 
   /**
@@ -21,42 +24,35 @@ export class FlasherService {
   drawFlasher() {
     let blackOutFlasher = false;
 
-    const { config, stateGeneral, stateTiming } = this.props;
-
-    if (config.flasherEnabled === false) {
-      stateTiming.flasherOn = false;
+    if (this.config.enabled === false) {
+      this.flasher.on = false;
       return;
     }
 
-    stateTiming.flasherTime += config.timerRateMs;
-    if (stateTiming.flasherTime >= config.flasherPeriodMs) {
-      stateTiming.flasherTime -= config.flasherPeriodMs;
-      if (stateTiming.flasherOn === false) {
-        stateTiming.flasherOn = true;
+    const { atomService, context } = this.props;
+
+    this.flasher.time += atomService.config.timerRateMs;
+    if (this.flasher.time >= this.config.periodMs) {
+      this.flasher.time -= this.config.periodMs;
+      if (this.flasher.on === false) {
+        this.flasher.on = true;
       } else {
-        stateTiming.flasherOn = false;
+        this.flasher.on = false;
         blackOutFlasher = true;
       }
     }
 
-    if (stateTiming.flasherOn !== false || blackOutFlasher !== false) {
-      stateGeneral.context.beginPath();
-      stateGeneral.context.arc(
-        stateGeneral.flasherX,
-        stateGeneral.flasherY,
-        3.5,
-        0,
-        2 * Math.PI,
-        false
-      );
+    if (this.flasher.on !== false || blackOutFlasher !== false) {
+      context.beginPath();
+      context.arc(this.flasher.x, this.flasher.y, 3.5, 0, 2 * Math.PI, false);
 
-      if (stateTiming.flasherOn === false) {
-        stateGeneral.context.fillStyle = config.flasherColor;
+      if (this.flasher.on === false) {
+        context.fillStyle = this.config.color;
       } else {
-        stateGeneral.context.fillStyle = config.background;
+        context.fillStyle = atomService.config.background;
       }
 
-      stateGeneral.context.fill();
+      context.fill();
     }
   }
 }

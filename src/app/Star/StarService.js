@@ -1,22 +1,22 @@
+import { StarConfig } from "../../domain/Star/StarConfig";
 import { BuildingService } from "../Building/BuildingService";
-import { Config } from "../Config/Config";
-import { StateGeneral } from "../State/StateGeneral";
 
 export class StarService {
   /**
    * @typedef IProps
    * @property {BuildingService} buildingService
-   * @property {Config} config
-   * @property {StateGeneral} stateGeneral
+   * @property {CanvasRenderingContext2D} context
    *
    * @param {IProps} props
    */
   constructor(props) {
     this.props = props;
+
+    this.config = new StarConfig();
   }
 
   drawStars() {
-    const { buildingService, config, stateGeneral } = this.props;
+    const { buildingService, context } = this.props;
     let starX = 0;
     let starY = 0;
 
@@ -24,17 +24,19 @@ export class StarService {
     // Randomly sprinkle a certain number of stars on the screen.
     //
 
-    for (let starIndex = 0; starIndex < config.starsPerUpdate; starIndex++) {
-      starX = Math.floor(Math.random() * stateGeneral.canvasWidth);
+    for (
+      let starIndex = 0;
+      starIndex < this.config.starsPerUpdate;
+      starIndex++
+    ) {
+      starX = Math.floor(Math.random() * context.canvas.width);
 
       //
       // Squaring the Y coordinate puts more stars at the top
       // and gives it a more realistic (and less static-ish) view.
       //
 
-      starY = Math.floor(
-        Math.pow(Math.random(), 2) * stateGeneral.canvasHeight
-      );
+      starY = Math.floor(Math.pow(Math.random(), 2) * context.canvas.height);
 
       if (buildingService.getTopBuilding(starX, starY) !== -1) {
         continue;
@@ -44,8 +46,8 @@ export class StarService {
       const g = Math.floor(Math.random() * 180);
       const b = Math.floor(Math.random() * 256);
 
-      stateGeneral.context.fillStyle = "rgb(" + r + ", " + g + ", " + b + ")";
-      stateGeneral.context.fillRect(starX, starY, 1, 1);
+      context.fillStyle = "rgb(" + r + ", " + g + ", " + b + ")";
+      context.fillRect(starX, starY, 1, 1);
     }
   }
 }

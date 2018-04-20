@@ -1,12 +1,10 @@
 import { App } from "./app/App";
+import { AtomService } from "./app/Atom/AtomService";
 import { BuildingService } from "./app/Building/BuildingService";
-import { Config } from "./app/Config/Config";
 import { FlasherService } from "./app/Flasher/FlasherService";
 import { RainService } from "./app/Rain/RainService";
 import { ShootingStarService } from "./app/ShootingStar/ShootingStarService";
 import { StarService } from "./app/Star/StarService";
-import { StateGeneral } from "./app/State/StateGeneral";
-import { StateTiming } from "./app/State/StateTiming";
 
 //
 // Entry point.
@@ -24,60 +22,56 @@ w.onload = function() {
 
   // ---
 
-  const config = new Config();
-  const stateGeneral = new StateGeneral(context);
-  const stateTiming = new StateTiming();
+  const atomService = new AtomService();
+
+  // ---
+
+  const flasherService = new FlasherService({
+    atomService,
+    context
+  });
+
+  const rainService = new RainService({
+    atomService,
+    context
+  });
 
   // ---
 
   const buildingService = new BuildingService({
-    config,
-    stateGeneral
-  });
-
-  const flasherService = new FlasherService({
-    config,
-    stateGeneral,
-    stateTiming
-  });
-
-  const rainService = new RainService({
-    config,
-    stateGeneral
+    context,
+    flasherService
   });
 
   // ---
 
   const shootingStarService = new ShootingStarService({
+    atomService,
     buildingService,
-    config,
-    stateGeneral,
-    stateTiming
+    context
   });
 
   const starService = new StarService({
     buildingService,
-    config,
-    stateGeneral
+    context
   });
 
   // ---
 
   const app = new App({
+    atomService,
     buildingService,
-    config,
+    context,
     flasherService,
     rainService,
     shootingStarService,
-    starService,
-    stateGeneral,
-    stateTiming
+    starService
   });
 
-  app.initialize();
+  app.init();
 
   w.onresize = () => {
-    stateGeneral.stop = true;
-    setTimeout(() => app.initialize(), 500);
+    app.stop = true;
+    setTimeout(() => app.init(), 500);
   };
 };

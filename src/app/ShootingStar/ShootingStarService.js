@@ -1,35 +1,38 @@
+import { ShootingStar } from "../../domain/ShootingStar/ShootingStar";
+import { ShootingStarConfig } from "../../domain/ShootingStar/ShootingStarConfig";
+import { AtomService } from "../Atom/AtomService";
 import { BuildingService } from "../Building/BuildingService";
 import { tileHeight } from "../Building/BuildingTiles";
-import { Config } from "../Config/Config";
-import { StateGeneral } from "../State/StateGeneral";
-import { StateTiming } from "../State/StateTiming";
 
 export class ShootingStarService {
   /**
    * @typedef IProps
+   * @property {AtomService} atomService
    * @property {BuildingService} buildingService
-   * @property {Config} config
-   * @property {StateGeneral} stateGeneral
-   * @property {StateTiming} stateTiming
+   * @property {CanvasRenderingContext2D} context
    *
    * @param {IProps} props
    */
   constructor(props) {
     this.props = props;
+
+    this.config = new ShootingStarConfig();
+
+    this.shootingStar = new ShootingStar();
   }
 
   /**
    * Updates any shooting stars on the screen, for those watching very closely.
    */
   drawShootingStar() {
-    const { config, stateGeneral, stateTiming } = this.props;
+    const { atomService, buildingService, context } = this.props;
 
     let currentX = 0;
     let currentY = 0;
     const maxStarY =
-      stateGeneral.canvasHeight -
-      stateGeneral.canvasHeight *
-        config.buildingHeightPercent /
+      context.canvas.height -
+      context.canvas.height *
+        buildingService.config.heightPercent /
         100 /
         tileHeight;
     let newX = 0;
@@ -40,46 +43,44 @@ export class ShootingStarService {
     // has ended.
     //
 
-    if (stateTiming.shootingStarActive === false) {
+    if (this.shootingStar.active === false) {
       //
       // If this causes the shooting star time to fire, set up the shooting
       // star.
       //
 
-      if (stateTiming.shootingStarTime <= config.timerRateMs) {
-        stateTiming.shootingStarTime = 0;
-        stateTiming.shootingStarActive = true;
+      if (this.shootingStar.time <= atomService.config.timerRateMs) {
+        this.shootingStar.time = 0;
+        this.shootingStar.active = true;
 
         //
         // The shooting star should start somewhere between the top of the
         // buildings and the top of the screen.
         //
 
-        stateTiming.shootingStarStartX = Math.floor(
-          Math.random() * stateGeneral.canvasWidth
+        this.shootingStar.startX = Math.floor(
+          Math.random() * context.canvas.width
         );
-        stateTiming.shootingStarStartY = Math.floor(
+        this.shootingStar.startY = Math.floor(
           Math.pow(Math.random(), 2) * maxStarY
         );
 
-        stateTiming.shootingStarDuration = Math.ceil(
-          Math.random() * config.maxShootingStarDurationMs
+        this.shootingStar.duration = Math.ceil(
+          Math.random() * this.config.maxDurationMs
         );
 
-        stateTiming.shootingStarVelocityX =
-          Math.random() * (2.0 * config.maxShootingStarSpeedX) -
-          config.maxShootingStarSpeedX;
+        this.shootingStar.velocityX =
+          Math.random() * (2.0 * this.config.maxSpeedX) - this.config.maxSpeedX;
 
-        stateTiming.shootingStarVelocityY =
-          Math.random() *
-            (config.maxShootingStarSpeedY - config.minShootingStarSpeedY) +
-          config.minShootingStarSpeedY;
+        this.shootingStar.velocityY =
+          Math.random() * (this.config.maxSpeedY - this.config.minSpeedY) +
+          this.config.minSpeedY;
 
         //
         // No shooting star now, keep counting down.
         //
       } else {
-        stateTiming.shootingStarTime -= config.timerRateMs;
+        this.shootingStar.time -= atomService.config.timerRateMs;
         return;
       }
     }
@@ -88,13 +89,13 @@ export class ShootingStarService {
     // TODO: unbreak this code.
     //
 
-    // stateGeneral.context.lineWidth = Math.ceil(
-    //   maxShootingStarWidth *
-    //   shootingStarTime /
-    //   shootingStarDuration
+    // context.lineWidth = Math.ceil(
+    //   this.config.maxWidth *
+    //   this.shootingStar.time /
+    //   this.shootingStar.duration
     // )
 
-    stateGeneral.context.lineWidth = config.maxShootingStarWidth;
+    context.lineWidth = this.config.maxWidth;
 
     //
     // Draw the shooting star line from the current location to the next
@@ -102,36 +103,32 @@ export class ShootingStarService {
     //
 
     currentX =
-      stateTiming.shootingStarStartX +
-      Math.ceil(
-        stateTiming.shootingStarTime * stateTiming.shootingStarVelocityX
-      );
+      this.shootingStar.startX +
+      Math.ceil(this.shootingStar.time * this.shootingStar.velocityX);
 
     currentY =
-      stateTiming.shootingStarStartY +
-      Math.ceil(
-        stateTiming.shootingStarTime * stateTiming.shootingStarVelocityY
-      );
+      this.shootingStar.startY +
+      Math.ceil(this.shootingStar.time * this.shootingStar.velocityY);
 
-    if (stateTiming.shootingStarTime < stateTiming.shootingStarDuration) {
+    if (this.shootingStar.time < this.shootingStar.duration) {
       newX =
         currentX +
-        Math.ceil(config.timerRateMs * stateTiming.shootingStarVelocityX);
+        Math.ceil(atomService.config.timerRateMs * this.shootingStar.velocityX);
       newY =
         currentY +
-        Math.ceil(config.timerRateMs * stateTiming.shootingStarVelocityY);
+        Math.ceil(atomService.config.timerRateMs * this.shootingStar.velocityY);
 
       // If the shooting star is about to fall behind a building, cut it off;
       // otherwise, draw it.
 
       if (this.props.buildingService.getTopBuilding(newX, newY) !== -1) {
-        stateTiming.shootingStarTime = stateTiming.shootingStarDuration;
+        this.shootingStar.time = this.shootingStar.duration;
       } else {
-        stateGeneral.context.strokeStyle = config.shootingStarColor;
-        stateGeneral.context.beginPath();
-        stateGeneral.context.moveTo(currentX, currentY);
-        stateGeneral.context.lineTo(newX, newY);
-        stateGeneral.context.stroke();
+        context.strokeStyle = this.config.color;
+        context.beginPath();
+        context.moveTo(currentX, currentY);
+        context.lineTo(newX, newY);
+        context.stroke();
       }
     }
 
@@ -139,31 +136,28 @@ export class ShootingStarService {
     // Draw background from the start to the current value.
     //
 
-    stateGeneral.context.lineWidth = config.maxShootingStarWidth + 1;
-    stateGeneral.context.strokeStyle = config.background;
-    stateGeneral.context.beginPath();
-    stateGeneral.context.moveTo(
-      stateTiming.shootingStarStartX,
-      stateTiming.shootingStarStartY
-    );
-    stateGeneral.context.lineTo(currentX, currentY);
-    stateGeneral.context.stroke();
+    context.lineWidth = this.config.maxWidth + 1;
+    context.strokeStyle = atomService.config.background;
+    context.beginPath();
+    context.moveTo(this.shootingStar.startX, this.shootingStar.startY);
+    context.lineTo(currentX, currentY);
+    context.stroke();
 
-    if (stateTiming.shootingStarTime < stateTiming.shootingStarDuration) {
+    if (this.shootingStar.time < this.shootingStar.duration) {
       //
       // If there is more time on the shooting star, just update time.
       //
 
-      stateTiming.shootingStarTime += config.timerRateMs;
+      this.shootingStar.time += atomService.config.timerRateMs;
     } else {
       //
       // The shooting star is sadly over. Reset the counters and patiently
       // wait for the next one.
       //
 
-      stateTiming.shootingStarActive = false;
-      stateTiming.shootingStarTime = Math.ceil(
-        Math.random() * config.maxShootingStarPeriodMs
+      this.shootingStar.active = false;
+      this.shootingStar.time = Math.ceil(
+        Math.random() * this.config.maxPeriodMs
       );
     }
   }
