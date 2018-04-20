@@ -24,19 +24,21 @@ export class StarService {
     // Randomly sprinkle a certain number of stars on the screen.
     //
 
+    const { height, width } = context.canvas;
+
     for (
       let starIndex = 0;
       starIndex < this.config.starsPerUpdate;
       starIndex++
     ) {
-      starX = Math.floor(Math.random() * context.canvas.width);
+      starX = Math.floor(Math.random() * width);
 
       //
       // Squaring the Y coordinate puts more stars at the top
       // and gives it a more realistic (and less static-ish) view.
       //
 
-      starY = Math.floor(Math.pow(Math.random(), 2) * context.canvas.height);
+      starY = Math.floor(Math.pow(Math.random(), 2) * height);
 
       if (buildingService.getTopBuilding(starX, starY) !== -1) {
         continue;

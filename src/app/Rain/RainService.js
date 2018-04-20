@@ -24,6 +24,7 @@ export class RainService {
     let rainY = 0;
 
     const { atomService, context } = this.props;
+    const { height, width } = context.canvas;
 
     for (
       let dropIndex = 0;
@@ -36,8 +37,8 @@ export class RainService {
           Math.random() * (this.config.maxWidth - this.config.minWidth)
         );
 
-      rainX = Math.floor(Math.random() * context.canvas.width);
-      rainY = Math.floor(Math.random() * context.canvas.height);
+      rainX = Math.floor(Math.random() * width);
+      rainY = Math.floor(Math.random() * height);
 
       context.strokeStyle = atomService.config.background;
       context.beginPath();

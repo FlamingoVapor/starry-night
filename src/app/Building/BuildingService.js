@@ -29,10 +29,11 @@ export class BuildingService {
    */
   drawBuildings() {
     const { context, flasherService } = this.props;
+    const { height, width } = context.canvas;
 
     let buildingIndex = 0;
     const buildingHeightOffset = flasherService.flasher.y;
-    const buildingHeightRange = context.canvas.height - buildingHeightOffset;
+    const buildingHeightRange = height - buildingHeightOffset;
     let potentialX = 0;
     let potentialY = 0;
     let style = 0;
@@ -40,7 +41,7 @@ export class BuildingService {
     let tileY = 0;
 
     for (let pixelsOn = 0; pixelsOn < this.config.pixelsPerUpdate; pixelsOn++) {
-      potentialX = Math.floor(Math.random() * context.canvas.width);
+      potentialX = Math.floor(Math.random() * width);
       potentialY =
         buildingHeightOffset + Math.floor(Math.random() * buildingHeightRange);
 
@@ -74,6 +75,7 @@ export class BuildingService {
     let maxZ = 0;
 
     const { context } = this.props;
+    const { height } = context.canvas;
 
     for (
       let buildingIndex = 0;
@@ -94,9 +96,7 @@ export class BuildingService {
       // Check to see if the pixel is inside this building.
       //
 
-      buildingTop =
-        context.canvas.height -
-        this.buildings[buildingIndex].height * tileHeight;
+      buildingTop = height - this.buildings[buildingIndex].height * tileHeight;
 
       buildingRight =
         this.buildings[buildingIndex].beginX +
@@ -129,13 +129,14 @@ export class BuildingService {
     let tallestBuilding = 0;
 
     const { context } = this.props;
+    const { height, width } = context.canvas;
 
     this.buildings = [];
 
     maxActualHeight = 0;
 
     maxHeight = Math.ceil(
-      context.canvas.height * (this.config.heightPercent / 100) / tileHeight
+      height * (this.config.heightPercent / 100) / tileHeight
     );
 
     for (
@@ -158,7 +159,7 @@ export class BuildingService {
         Math.floor(
           Math.random() * (this.config.maxWidth - this.config.minWidth)
         );
-      building.beginX = Math.floor(Math.random() * context.canvas.width);
+      building.beginX = Math.floor(Math.random() * width);
       building.zCoordinate = buildingIndex + 1;
 
       //
@@ -218,6 +219,7 @@ export class BuildingService {
     let swap = new Building();
 
     const { context } = this.props;
+    const { width } = context.canvas;
 
     for (
       let buildingIndex = 0;
@@ -228,7 +230,7 @@ export class BuildingService {
       // Find the building with the lowest X coordinate.
       //
 
-      minX = context.canvas.width;
+      minX = width;
       minXIndex = -1;
       for (
         let index2 = buildingIndex;

@@ -26,15 +26,12 @@ export class ShootingStarService {
    */
   drawShootingStar() {
     const { atomService, buildingService, context } = this.props;
+    const { height, width } = context.canvas;
 
     let currentX = 0;
     let currentY = 0;
     const maxStarY =
-      context.canvas.height -
-      context.canvas.height *
-        buildingService.config.heightPercent /
-        100 /
-        tileHeight;
+      height - height * buildingService.config.heightPercent / 100 / tileHeight;
     let newX = 0;
     let newY = 0;
 
@@ -58,9 +55,7 @@ export class ShootingStarService {
         // buildings and the top of the screen.
         //
 
-        this.shootingStar.startX = Math.floor(
-          Math.random() * context.canvas.width
-        );
+        this.shootingStar.startX = Math.floor(Math.random() * width);
         this.shootingStar.startY = Math.floor(
           Math.pow(Math.random(), 2) * maxStarY
         );

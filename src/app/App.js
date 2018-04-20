@@ -27,8 +27,8 @@ export class App {
   init() {
     const { atomService, buildingService, context } = this.props;
 
-    context.canvas.width = window.innerWidth;
-    context.canvas.height = window.innerHeight;
+    context.canvas.width = context.canvas.offsetWidth;
+    context.canvas.height = context.canvas.offsetHeight;
 
     context.rect(0, 0, context.canvas.width, context.canvas.height);
     context.fillStyle = atomService.config.background;
