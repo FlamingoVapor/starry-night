@@ -47,7 +47,6 @@ export class App {
     this.stop = false;
 
     const {
-      atomService,
       buildingService,
       flasherService,
       rainService,
@@ -61,10 +60,10 @@ export class App {
     shootingStarService.drawShootingStar();
     flasherService.drawFlasher();
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       if (this.stop !== true) {
         this.update();
       }
-    }, atomService.config.timerRateMs);
+    });
   }
 }

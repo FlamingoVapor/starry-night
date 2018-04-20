@@ -10,6 +10,11 @@ import { StarService } from "./app/Star/StarService";
 // Entry point.
 //
 
+window.requestAnimationFrame =
+  window.requestAnimationFrame ||
+  ((/** @type {() => void} */ callback) =>
+    window.setTimeout(callback, 1000 / 60));
+
 /** @type {any} */
 const w = window;
 
