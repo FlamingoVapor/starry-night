@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "rm dist/* && parcel build index.html && cp favicon* dist/",
+    "build": "rm dist/* && parcel build index.html --public-url ./ && cp favicon* dist/",
     "deploy": "msg=\"$(echo `git log -1 --pretty=%B`)\" && npm run build && cd dist/.git/.. && git add . && git commit -m \"$msg\" && git push",
     "format": "tsc && tslint -p . --fix",
-    "start": "parcel index.html"
+    "start": "parcel index.html --public-url ./"
   },
   "repository": "https://github.com/FlamingoVapor/starry-night",
   "author": "makepost <makepost@firemail.cc>",
